@@ -1,0 +1,1 @@
+mvn clean verify sonar:sonar -Dsonar.projectKey=betbot -Dsonar.host.url=http://localhost:9000 -Dsonar.login=92155be0aba012d9384336a6cfb3e558f349ff8c -Dsonar.java.source=1.8

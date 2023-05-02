@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="ehcache.xsd" updateCheck="false"
+         monitoring="autodetect" dynamicConfig="true" name="betbot">
+
+    <diskStore path="java.io.tmpdir/cache/betbot" />
+
+    <defaultCache maxElementsInMemory="1000000" eternal="false"
+                  timeToIdleSeconds="60" timeToLiveSeconds="360" diskSpoolBufferSizeMB="120"
+                  maxElementsOnDisk="2000000" diskExpiryThreadIntervalSeconds="240"
+                  memoryStoreEvictionPolicy="LRU" diskPersistent="true" overflowToDisk="true">
+
+    </defaultCache>
+
+    <cache name="geral" maxElementsInMemory="1000000" eternal="false"
+           timeToIdleSeconds="60" timeToLiveSeconds="360" diskSpoolBufferSizeMB="120"
+           maxElementsOnDisk="2000000" diskExpiryThreadIntervalSeconds="240"
+           memoryStoreEvictionPolicy="LRU" diskPersistent="true" overflowToDisk="true">
+
+    </cache>
+
+    <cache name="default-query-results-region"
+           maxElementsInMemory="1000000" eternal="false" timeToIdleSeconds="60"
+           timeToLiveSeconds="360" diskSpoolBufferSizeMB="120" maxElementsOnDisk="2000000"
+           diskExpiryThreadIntervalSeconds="240" memoryStoreEvictionPolicy="LRU"
+           diskPersistent="true" overflowToDisk="true">
+
+    </cache>
+
+    <cache name="default-update-timestamps-region"
+           maxElementsInMemory="1000000" eternal="false" timeToIdleSeconds="60"
+           timeToLiveSeconds="360" diskSpoolBufferSizeMB="120" maxElementsOnDisk="2000000"
+           diskExpiryThreadIntervalSeconds="240" memoryStoreEvictionPolicy="LRU"
+           diskPersistent="true" overflowToDisk="true">
+
+    </cache>
+
+</ehcache>

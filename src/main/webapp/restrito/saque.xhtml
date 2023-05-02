@@ -1,0 +1,308 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/templates/Layout.xhtml"
+                xmlns:ezcomp="http://xmlns.jcp.org/jsf/composite/ezcomp">
+
+    <ui:define name="content">
+        <ezcomp:logado id="uss"/>
+        <h1 class="aw-page-title">Saque</h1>
+
+
+        <h:form id="frm">
+            <p:messages closable="true" />
+            <p:focus context="@form"/>
+
+            <p:toolbar>
+                <p:toolbarGroup>
+
+                    <p:commandButton value="Voltar (ESC)"  styleClass="cancelar"
+                                     icon="ui-icon-arrowreturn-1-w"
+                                     immediate="true"
+                                     rendered="#{saqueBean.novo eq false}"
+                                     action="/restrito/index?faces-redirect=true"                                    
+                                     update="@form"
+                                     onstart="PF('statusDialog').show()"
+                                     onsuccess="PF('statusDialog').hide();"
+                                     style="background: brown;width: 160px;"/>
+
+                    <p:commandButton value="Salvar (F8)"  styleClass="salvar"
+                                     actionListener="#{saqueBean.salvar()}"
+                                     update="@form"
+                                     style="width: 160px;"
+                                     icon="ui-icon-check"
+                                     onstart="PF('statusDialog').show()"
+                                     onsuccess="PF('statusDialog').hide();"
+                                     rendered="#{saqueBean.novo}">
+                        <p:confirm header="Confirmação" message="Confirma operação?"
+                                   icon="ui-icon-alert" />
+                    </p:commandButton>
+                </p:toolbarGroup>
+                <p:toolbarGroup align="right">
+                    <p:commandButton value="Novo (F6)" styleClass="novo"
+                                     icon="ui-icon-circle-plus"
+
+                                     rendered="#{saqueBean.novo eq false}"
+                                     actionListener="#{saqueBean.novo()}"                                    
+                                     update="@form"
+                                     oncomplete="fs();"
+                                     onstart="PF('statusDialog').show()"
+                                     onsuccess="PF('statusDialog').hide();"
+                                     style="width: 160px"/>
+
+                    <p:commandButton value="Editar (F7)" styleClass="editar"
+                                     icon="ui-icon-pencil"
+                                     immediate="true"
+                                     onstart="PF('statusDialog').show()"
+                                     onsuccess="PF('statusDialog').hide();"
+                                     rendered="#{saqueBean.saquec.id ne null and saqueBean.saquec.status eq 'SOLICITACAO'}"
+                                     actionListener="#{saqueBean.editar()}"
+                                     style="background: green;width: 160px"
+                                     oncomplete="fs()"
+                                     update="@form" />
+
+
+                    <p:commandButton value="Ver (F10)" styleClass="ver"
+                                     icon="ui-icon-pencil"
+                                     immediate="true"
+                                     onstart="PF('statusDialog').show()"
+                                     onsuccess="PF('statusDialog').hide();"
+                                     rendered="#{saqueBean.saquec.id ne null}"
+                                     style="background: blueviolet;width: 160px"
+                                     onclick="PF('dlgver').show()"
+                                     update=":ver" 
+                                     />
+
+
+                    <p:commandButton value="Cancelar (ESC)"  styleClass="cancelar" 
+                                     icon="ui-icon-cancel"
+                                     immediate="true"
+                                     onstart="PF('statusDialog').show()"
+                                     onsuccess="PF('statusDialog').hide();"
+                                     rendered="#{saqueBean.novo}"
+                                     actionListener="#{saqueBean.cancelar()}"
+                                     style="background: red;width: 160px"
+                                     update="@form" 
+                                     >
+                        <p:confirm header="Confirmação" message="Confirma operação?"
+                                   icon="ui-icon-alert" />
+                    </p:commandButton>
+
+
+                </p:toolbarGroup>
+            </p:toolbar>
+
+
+
+            <div class="ui-fluid">
+
+                <p:panelGrid columns="2" layout="grid"
+                             rendered="#{saqueBean.novo}"
+                             columnClasses="ui-grid-col-2, ui-grid-col-4, ui-grid-col-2, ui-grid-col-4"
+                             styleClass="panelgrid-noborder">
+
+                    <p:outputLabel value="Codigo" rendered="#{saqueBean.saque.id ne null}" />
+                    <p:inputText disabled="true"
+                                 rendered="#{saqueBean.saque.id ne null}"
+                                 value="#{saqueBean.saque.id}" />
+
+                    <p:outputLabel value="Usuario" for="usuarioxh" />
+                    <p:inputText id="usuarioxh" required="true" 
+                                 maxlength="32"
+                                 disabled="true"
+                                 placeholder="Digite o usuario"
+                                 value="#{saqueBean.saque.usuario}" />
+
+                    <p:outputLabel value="Chave Pix" for="usuarioxhx" />
+                    <p:inputText id="usuarioxhx" required="true" 
+                                 maxlength="50"
+                                 disabled="#{saqueBean.saque.id ne null}"
+                                 placeholder="Digite a chave pix"
+                                 value="#{saqueBean.saque.pix}" />
+
+                    <p:outputLabel value="Valor" for="saque" />
+                    <p:inputNumber
+                        title="Valor Saque"
+                        inputStyle="text-align: right"
+                        decimalPlaces="2"
+                        decimalSeparator=","
+                        thousandSeparator="."
+                        required="true"                                         
+                        id="saque"
+                        disabled="#{saqueBean.saque.id ne null}"
+                        size="15"
+                        onfocus="$(this).select();"
+                        maxlength="15"
+                        value="#{saqueBean.saque.valor}" >
+                        <p:ajax event="keyup"
+                                process="@this"
+                                oncomplete="fs();"
+                                />
+                        <f:validateDoubleRange minimum="0.01" maximum="#{session.getAttribute('usuario').valorbanca.add(session.getAttribute('usuario').lucro)}"/>
+                    </p:inputNumber>
+
+                    <p:outputLabel value="Status" for="status" />
+                    <p:selectOneMenu id="status"   
+                                     disabled="#{session.getAttribute('usuario').nivel ne 'MASTER'}"
+                                     value="#{saqueBean.saque.status}" >
+                        <p:ajax event="change" process="@this"/>
+                        <f:selectItem itemValue="EFETUADO" itemLabel="EFETUADO"/>
+                        <f:selectItem itemValue="RECUSADO" itemLabel="RECUSADO"/>
+                        <f:selectItem itemValue="SOLICITACAO" itemLabel="SOLICITACAO"/>
+                    </p:selectOneMenu>
+
+
+
+
+
+
+                </p:panelGrid>
+
+                <p:panel header="Pesquisa" rendered="#{saqueBean.novo eq false}">
+                    <p:panelGrid columns="3" 
+                                 id="pesquisa"
+                                 layout="grid"
+                                 columnClasses="ui-grid-col-2, ui-grid-col-4, ui-grid-col-4"
+                                 styleClass="panelgrid-noborder">
+
+                        <p:selectOneMenu id="campo" 
+                                         value="#{saqueBean.campo}" >
+                            <p:ajax event="change" process="@this"/>
+                            <f:selectItem itemValue="id" itemLabel="Codigo"/>
+                            <f:selectItem itemValue="usuario" itemLabel="Usuario"/>
+                            <f:selectItem itemValue="valor" itemLabel="Valor"/>
+                            <f:selectItem itemValue="status" itemLabel="Status"/>
+
+                        </p:selectOneMenu>
+
+                        <p:inputText id="valor" 
+                                     maxlength="100"
+                                     placeholder="Digite o valor a ser pesquisado"
+                                     value="#{saqueBean.valor}" />
+
+                        <p:commandButton value="Pesquisar" 
+                                         update="@form"
+                                         process=":frm:pesquisa"
+                                         icon="ui-icon-search"
+                                         style="width: 160px"
+                                         onstart="PF('statusDialog').show()"
+                                         onsuccess="PF('statusDialog').hide();"
+                                         actionListener="#{saqueBean.pesquisar()}"/>
+
+                    </p:panelGrid>
+                </p:panel>
+
+                <p:dataTable value="#{saqueBean.saques}" var="u"                         
+                             resizableColumns="true"
+                             draggableColumns="true"
+                             multiViewState="false"
+                             emptyMessage="nenhuma saque"
+                             reflow="true"
+                             rendered="#{saqueBean.novo eq false}"
+                             selection="#{saqueBean.saquec}"
+                             selectionMode="single"
+                             rowKey="#{u.id}"
+                             >
+                    <f:facet name="header">Lista de Saques</f:facet>
+
+                    <p:ajax event="rowSelect" update="@form"
+                            onstart="PF('statusDialog').show()"
+                            onsuccess="PF('statusDialog').hide();"
+                            />
+
+                    <p:column sortBy="#{u.id}" width="50" headerText="Codigo">
+                        <h:outputText value="#{u.id}"/>
+                    </p:column>
+
+                    <p:column sortBy="#{u.usuario}" width="100"  headerText="Usuario">
+                        <h:outputText value="#{u.usuario}"/>
+                    </p:column>
+
+                    <p:column sortBy="#{u.pix}" width="100"  headerText="Chave Pix">
+                        <h:outputText value="#{u.pix}"/>
+                    </p:column>
+
+                    <p:column sortBy="#{u.valor}" width="50"  headerText="Valor">
+                        <h:outputText value="#{u.valor}"/>
+                    </p:column>
+
+                    <p:column sortBy="#{u.status}" width="100" headerText="Status">
+                        <h:outputText value="#{u.status}"/>
+                    </p:column>
+
+
+
+
+                </p:dataTable>
+
+            </div>
+
+
+        </h:form>
+
+        <p:dialog header="Ver Saque" 
+                  resizable="false"
+                  draggable="true"
+                  closeOnEscape="true"
+                  closable="true"
+                  dynamic="trye"
+                  modal="false"
+                  appendTo="@(body)" 
+                  responsive="true"
+                  widgetVar="dlgver">
+
+            <h:form id="ver" >
+                <div class="ui-fluid">
+                    <p:panelGrid columns="2" layout="grid" styleClass="panelgrid-noborder"
+                                 columnClasses="ui-grid-col-4, ui-grid-col-8">
+                        <p:outputLabel value="Codigo:" />
+                        <h:outputText value="#{saqueBean.saquec.id}"/>
+
+                        <p:outputLabel value="Usuario" />
+                        <h:outputText value="#{saqueBean.saquec.usuario}"/>
+
+                        <p:outputLabel value="Chave Pix" />
+                        <h:outputText value="#{saqueBean.saquec.pix}"/>
+
+
+                        <p:outputLabel value="Valor" />
+                        <h:outputText value="#{saqueBean.saquec.valor}"/>
+
+
+
+                        <p:outputLabel value="Status:" />
+                        <h:outputText value="#{saqueBean.saquec.status}"/>
+
+
+
+                        <p:outputLabel value="Usuario Alteracao:" />
+                        <h:outputText value="#{saqueBean.saquec.usuarioAlteracao}-#{configuracaoBean.pu(saqueBean.saquec.usuarioAlteracao).usuario}"/>
+
+
+                        <p:outputLabel value="Data Alteracao:" />
+                        <h:outputText value="#{saqueBean.saquec.dataAlteracao}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss"/>
+                        </h:outputText>
+                    </p:panelGrid>
+
+
+
+                    <p:commandButton value="Fechar"
+                                     onclick="PF('dlgver').hide();"
+                                     icon="ui-icon-close"
+                                     immediate="true"
+                                     onstart="PF('statusDialog').show()"
+                                     onsuccess="PF('statusDialog').hide();"
+
+                                     >
+                    </p:commandButton>
+                </div>
+            </h:form>
+
+        </p:dialog>
+
+    </ui:define>
+
+</ui:composition>

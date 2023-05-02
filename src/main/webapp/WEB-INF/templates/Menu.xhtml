@@ -1,0 +1,92 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <nav class="aw-menu">
+
+        <ul>
+            <li>
+                <h:link style="color: green;" outcome="/restrito/index"><i aria-hidden="true" class="fa  fa-fw  fa-home fa-2x"></i>Inicio</h:link>
+            </li>
+               <li >
+                    <hr/>
+                </li>
+            <li >
+                <h:link   
+                    style="color: red"
+                    outcome="/restrito/banca"><i aria-hidden="true" class="fa  fa-fw  fa-cubes fa-2x"></i>Banca</h:link>
+            </li> 
+            
+            <li >
+                <h:link   
+                      style="color: red"
+                    outcome="/restrito/saque"><i aria-hidden="true" class="fa  fa-fw  fa-money fa-2x"></i>Saque</h:link>
+            </li> 
+
+            <li >
+                <h:link   
+                    rendered="#{session.getAttribute('usuario').nivel eq 'SUPERVISOR' or session.getAttribute('usuario').nivel eq 'MASTER'}" 
+                    outcome="/restrito/apostas"><i aria-hidden="true" class="fa  fa-fw  fa-align-center fa-2x"></i>Apostas</h:link>
+            </li> 
+            
+            <li >
+                <h:link   
+                    rendered="#{session.getAttribute('usuario').nivel eq 'SUPERVISOR' or session.getAttribute('usuario').nivel eq 'MASTER'}" 
+                    outcome="/restrito/usuarios"><i aria-hidden="true" class="fa  fa-fw  fa-user fa-2x"></i>Usuários</h:link>
+            </li> 
+            
+            <li >
+                <h:link   
+                       style="color: green"
+                    outcome="/restrito/dashboard"><i aria-hidden="true" class="fa  fa-fw  fa-bar-chart fa-2x"></i>Dashboard</h:link>
+            </li> 
+
+
+            <h:panelGroup   >
+                <li >
+                    <hr/>
+                </li> 
+            </h:panelGroup>
+
+
+            <li>
+                <h:link outcome="/restrito/configuracoes" style="color: green"><i aria-hidden="true" class="fa  fa-fw  fa-cog fa-2x"></i>Configurações</h:link>
+            </li>
+
+            <li >
+                <h:link   
+                    rendered="#{session.getAttribute('usuario').nivel eq 'MASTER'}" 
+                    outcome="/restrito/eventos"><i aria-hidden="true" class="fa  fa-fw  fa-calendar fa-2x"></i>Eventos</h:link>
+            </li> 
+            
+            
+
+            <li ><h:form id="sair">
+
+                    <p:commandLink 
+                        style="font-size: 12px;color: red"
+                        onstart="PF('statusDialog').show();"
+                        onsuccess="PF('statusDialog').hide();"
+                        action="#{acessoBean.logout()}">                      
+                        <i aria-hidden="true" class="fa  fa-fw  fa-power-off fa-2x"></i>Sair do Sistema
+
+
+                        <p:confirm header="Confirmação" message="Deseja sair do sistema?"
+                                   icon="ui-icon-alert" />
+                    </p:commandLink>
+                </h:form>
+
+            </li>
+
+
+        </ul>
+
+    </nav>
+
+
+
+
+
+</ui:composition>

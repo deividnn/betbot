@@ -1,0 +1,324 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/templates/Layout.xhtml"
+                xmlns:ezcomp="http://xmlns.jcp.org/jsf/composite/ezcomp">
+
+    <ui:define name="content">
+        <ezcomp:logado id="uss"/>
+        <h1 class="aw-page-title">Banca</h1>
+
+
+        <h:form id="frm">
+            <p:messages closable="true" />
+            <p:focus context="@form"/>
+
+            <p:toolbar>
+                <p:toolbarGroup>
+
+                    <p:commandButton value="Voltar (ESC)"  styleClass="cancelar"
+                                     icon="ui-icon-arrowreturn-1-w"
+                                     immediate="true"
+                                     rendered="#{bancaBean.novo eq false}"
+                                     action="/restrito/index?faces-redirect=true"                                    
+                                     update="@form"
+                                     onstart="PF('statusDialog').show()"
+                                     onsuccess="PF('statusDialog').hide();"
+                                     style="background: brown;width: 160px;"/>
+
+                    <p:commandButton value="Salvar (F8)"  styleClass="salvar"
+                                     actionListener="#{bancaBean.salvar()}"
+                                     update="@form"
+                                     style="width: 160px;"
+                                     icon="ui-icon-check"
+                                     onstart="PF('statusDialog').show()"
+                                     onsuccess="PF('statusDialog').hide();"
+                                     rendered="#{bancaBean.novo}">
+                        <p:confirm header="Confirmação" message="Confirma operação?"
+                                   icon="ui-icon-alert" />
+                    </p:commandButton>
+                </p:toolbarGroup>
+                <p:toolbarGroup align="right">
+                    <p:commandButton value="Adicionar Saldo (F6)" styleClass="novo"
+                                     icon="ui-icon-circle-plus"
+
+                                     rendered="#{bancaBean.novo eq false}"
+                                     actionListener="#{bancaBean.novo()}"                                    
+                                     update="@form"
+                                     oncomplete="fs();"
+                                     onstart="PF('statusDialog').show()"
+                                     onsuccess="PF('statusDialog').hide();"
+                                     style="width: 160px"/>
+
+                    <p:commandButton value="Editar (F7)" styleClass="editar"
+                                     icon="ui-icon-pencil"
+                                     immediate="true"
+                                     onstart="PF('statusDialog').show()"
+                                     onsuccess="PF('statusDialog').hide();"
+                                     rendered="#{bancaBean.bancac.id ne null and bancaBean.bancac.status eq 'SOLICITACAO'}"
+                                     actionListener="#{bancaBean.editar()}"
+                                     style="background: green;width: 160px"
+                                     oncomplete="fs()"
+                                     update="@form" />
+
+
+                    <p:commandButton value="Ver (F10)" styleClass="ver"
+                                     icon="ui-icon-pencil"
+                                     immediate="true"
+                                     onstart="PF('statusDialog').show()"
+                                     onsuccess="PF('statusDialog').hide();"
+                                     rendered="#{bancaBean.bancac.id ne null}"
+                                     style="background: blueviolet;width: 160px"
+                                     onclick="PF('dlgver').show()"
+                                     update=":ver" 
+                                     />
+
+
+                    <p:commandButton value="Cancelar (ESC)"  styleClass="cancelar" 
+                                     icon="ui-icon-cancel"
+                                     immediate="true"
+                                     onstart="PF('statusDialog').show()"
+                                     onsuccess="PF('statusDialog').hide();"
+                                     rendered="#{bancaBean.novo}"
+                                     actionListener="#{bancaBean.cancelar()}"
+                                     style="background: red;width: 160px"
+                                     update="@form" 
+                                     >
+                        <p:confirm header="Confirmação" message="Confirma operação?"
+                                   icon="ui-icon-alert" />
+                    </p:commandButton>
+
+
+                </p:toolbarGroup>
+            </p:toolbar>
+
+
+
+            <div class="ui-fluid">
+
+                <p:panelGrid columns="2" layout="grid"
+                             rendered="#{bancaBean.novo}"
+                             columnClasses="ui-grid-col-2, ui-grid-col-4, ui-grid-col-2, ui-grid-col-4"
+                             styleClass="panelgrid-noborder">
+
+                    <p:outputLabel value="Codigo" rendered="#{bancaBean.banca.id ne null}" />
+                    <p:inputText disabled="true"
+                                 rendered="#{bancaBean.banca.id ne null}"
+                                 value="#{bancaBean.banca.id}" />
+
+                    <p:outputLabel value="Usuario" for="usuarioxh" />
+                    <p:inputText id="usuarioxh" required="true" 
+                                 maxlength="32"
+                                 disabled="true"
+                                 placeholder="Digite o usuario"
+                                 value="#{bancaBean.banca.usuario}" />
+
+                    <p:outputLabel value="Valor" for="banca" />
+                    <p:inputNumber
+                        title="Valor Banca"
+                        inputStyle="text-align: right"
+                        decimalPlaces="2"
+                        decimalSeparator=","
+                        thousandSeparator="."
+                        required="true"                                         
+                        id="banca"
+                        disabled="#{bancaBean.banca.id ne null}"
+                        size="15"
+                        onfocus="$(this).select();"
+                        maxlength="15"
+                        value="#{bancaBean.banca.valor}" >
+                        <p:ajax event="keyup"
+                                process="@this"
+                                oncomplete="fs();"
+                                />
+                        <f:validateDoubleRange minimum="0.01"/>
+                    </p:inputNumber>
+
+                    <p:outputLabel value="Status" for="status" />
+                    <p:selectOneMenu id="status"   
+                                     disabled="#{session.getAttribute('usuario').nivel ne 'MASTER'}"
+                                     value="#{bancaBean.banca.status}" >
+                        <p:ajax event="change" process="@this"/>
+                        <f:selectItem itemValue="ACEITO" itemLabel="ACEITO"/>
+                        <f:selectItem itemValue="RECUSADO" itemLabel="RECUSADO"/>
+                        <f:selectItem itemValue="SOLICITACAO" itemLabel="SOLICITACAO"/>
+                    </p:selectOneMenu>
+
+
+                    <p:outputLabel value="Chave Pix:"  />
+                    <p:outputLabel value="qualchavepix?" />
+
+                    <p:outputLabel value="Comprovante" for="upload2" />
+                    <p:fileUpload id="upload2" mode="advanced"
+                                  rendered="#{bancaBean.banca.id eq null}"
+                                  onstart="PF('statusDialog').show()" required="true"
+                                  cancelLabel="Cancelar" style="margin-top: 15px;"
+                                  requiredMessage="Necessario o envio de pelo menos um arquivo!"
+                                  allowTypes="/(\.|\/)(pdf|PDF)$/"
+                                  invalidFileMessage="Tipo de arquivo nao permitido,aceita apenas (pdf|PDF)"
+                                  invalidSizeMessage="Tamanho excedido(2Mb)"
+                                  uploadLabel="Processar" fileLimit="1"
+                                  fileLimitMessage="Apenas um por vez" dragDropSupport="true"
+                                  label="Selecionar..." multiple="false"
+                                  listener="#{bancaBean.arquivopdf}"
+                                  sizeLimit="2088576" update="@form"
+                                  oncomplete="PF('statusDialog').hide();funcoesGeral();" 
+                                  />
+
+                    <p:outputLabel value="Comprovante enviado"  rendered="#{bancaBean.arquivop ne null}"/>
+                    <h:panelGroup rendered="#{bancaBean.arquivop ne null}">
+                        <p:outputLabel value="#{bancaBean.arquivop}" />
+                        <br/>
+                        <p:commandButton value="Download" ajax="false"
+                                         immediate="true"
+                                         style="background: green;"
+                                         onclick="PrimeFaces.monitorDownload(start, stop);"
+                                         icon="ui-icon-arrowthick-1-s">
+                            <p:fileDownload value="#{bancaBean.salvarArquivoe()}" />
+                        </p:commandButton>
+                    </h:panelGroup>
+
+
+                </p:panelGrid>
+
+                <p:panel header="Pesquisa" rendered="#{bancaBean.novo eq false}">
+                    <p:panelGrid columns="3" 
+                                 id="pesquisa"
+                                 layout="grid"
+                                 columnClasses="ui-grid-col-2, ui-grid-col-4, ui-grid-col-4"
+                                 styleClass="panelgrid-noborder">
+
+                        <p:selectOneMenu id="campo" 
+                                         value="#{bancaBean.campo}" >
+                            <p:ajax event="change" process="@this"/>
+                            <f:selectItem itemValue="id" itemLabel="Codigo"/>
+                            <f:selectItem itemValue="usuario" itemLabel="Usuario"/>
+                            <f:selectItem itemValue="valor" itemLabel="Valor"/>
+                            <f:selectItem itemValue="status" itemLabel="Status"/>
+
+                        </p:selectOneMenu>
+
+                        <p:inputText id="valor" 
+                                     maxlength="100"
+                                     placeholder="Digite o valor a ser pesquisado"
+                                     value="#{bancaBean.valor}" />
+
+                        <p:commandButton value="Pesquisar" 
+                                         update="@form"
+                                         process=":frm:pesquisa"
+                                         icon="ui-icon-search"
+                                         style="width: 160px"
+                                         onstart="PF('statusDialog').show()"
+                                         onsuccess="PF('statusDialog').hide();"
+                                         actionListener="#{bancaBean.pesquisar()}"/>
+
+                    </p:panelGrid>
+                </p:panel>
+
+                <p:dataTable value="#{bancaBean.bancas}" var="u"                         
+                             resizableColumns="true"
+                             draggableColumns="true"
+                             multiViewState="false"
+                             emptyMessage="nenhuma banca"
+                             reflow="true"
+                             rendered="#{bancaBean.novo eq false}"
+                             selection="#{bancaBean.bancac}"
+                             selectionMode="single"
+                             rowKey="#{u.id}"
+                             >
+                    <f:facet name="header">Lista de Bancas</f:facet>
+
+                    <p:ajax event="rowSelect" update="@form"
+                            onstart="PF('statusDialog').show()"
+                            onsuccess="PF('statusDialog').hide();"
+                            />
+
+                    <p:column sortBy="#{u.id}" width="50" headerText="Codigo">
+                        <h:outputText value="#{u.id}"/>
+                    </p:column>
+
+                    <p:column sortBy="#{u.usuario}" width="100"  headerText="Usuario">
+                        <h:outputText value="#{u.usuario}"/>
+                    </p:column>
+
+                    <p:column sortBy="#{u.valor}" width="50"  headerText="Valor">
+                        <h:outputText value="#{u.valor}"/>
+                    </p:column>
+
+                    <p:column sortBy="#{u.status}" width="100" headerText="Status">
+                        <h:outputText value="#{u.status}"/>
+                    </p:column>
+
+
+
+
+                </p:dataTable>
+
+            </div>
+
+
+        </h:form>
+
+        <p:dialog header="Ver Banca" 
+                  resizable="false"
+                  draggable="true"
+                  closeOnEscape="true"
+                  closable="true"
+                  dynamic="trye"
+                  modal="false"
+                  appendTo="@(body)" 
+                  responsive="true"
+                  widgetVar="dlgver">
+
+            <h:form id="ver" >
+                <div class="ui-fluid">
+                    <p:panelGrid columns="2" layout="grid" styleClass="panelgrid-noborder"
+                                 columnClasses="ui-grid-col-4, ui-grid-col-8">
+                        <p:outputLabel value="Codigo:" />
+                        <h:outputText value="#{bancaBean.bancac.id}"/>
+
+                        <p:outputLabel value="Usuario" />
+                        <h:outputText value="#{bancaBean.bancac.usuario}"/>
+
+
+                        <p:outputLabel value="Valor" />
+                        <h:outputText value="#{bancaBean.bancac.valor}"/>
+
+
+
+                        <p:outputLabel value="Status:" />
+                        <h:outputText value="#{bancaBean.bancac.status}"/>
+
+
+
+                        <p:outputLabel value="Usuario Alteracao:" />
+                        <h:outputText value="#{bancaBean.bancac.usuarioAlteracao}-#{configuracaoBean.pu(bancaBean.bancac.usuarioAlteracao).usuario}"/>
+
+
+                        <p:outputLabel value="Data Alteracao:" />
+                        <h:outputText value="#{bancaBean.bancac.dataAlteracao}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss"/>
+                        </h:outputText>
+                    </p:panelGrid>
+
+
+
+                    <p:commandButton value="Fechar"
+                                     onclick="PF('dlgver').hide();"
+                                     icon="ui-icon-close"
+                                     immediate="true"
+                                     onstart="PF('statusDialog').show()"
+                                     onsuccess="PF('statusDialog').hide();"
+
+                                     >
+                    </p:commandButton>
+                </div>
+            </h:form>
+
+        </p:dialog>
+
+    </ui:define>
+
+</ui:composition>

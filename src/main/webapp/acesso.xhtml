@@ -1,0 +1,84 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/templates/Layout_Login.xhtml">
+
+    <ui:define name="content">
+        <h1 class="aw-page-title">Acesso</h1>
+
+        <script>
+            var os = '';
+            var navegador = '';</script>
+
+        <h:form id="frm">
+            <p:messages closable="true"/>
+            <p:focus context="@form"/>
+            <p:outputLabel value="#{acessoBean.verificasessao()}"/>
+
+            <h:inputHidden id="navegador"
+                           value="#{acessoBean.navegador}" />
+            <h:inputHidden id="os" value="#{acessoBean.so}" />
+            <h:inputHidden id="hh" value="#{acessoBean.hh}" />
+            <h:inputHidden id="movel" value="#{acessoBean.movel}" />
+
+            <p:fieldset legend="Dados de Acesso"  >
+                <p:panelGrid columns="2" layout="grid"
+                             columnClasses="ui-grid-col-2, ui-grid-col-4, ui-grid-col-2, ui-grid-col-4"
+                             styleClass="panelgrid-noborder">
+
+                    <p:outputLabel value="Usuário" for="usuariop" />
+                    <p:inputText maxlength="32"
+                                 size="25"
+                                 required="true"
+                                 id="usuariop"
+                                 requiredMessage="Digite o usuario/codigo"
+                                 placeholder="Digite seu usuario/codigo"
+                                 value="#{acessoBean.usuario.usuario}" />
+
+
+                    <p:outputLabel value="Senha" for="senhap" />
+                    <p:password maxlength="32"
+                                required="true"
+                                size="25"
+                                id="senhap"
+                                requiredMessage="Digite a senha"
+                                placeholder="Digite a senha"
+                                value="#{acessoBean.usuario.senha}" />
+
+                    <p:outputLabel value="." style="visibility: hidden" />
+                    <p:commandButton value="Acessar" 
+                                     update="@form"       
+                                     icon="ui-icon-cancel"
+                                     actionListener="#{acessoBean.logar()}"/>
+
+                </p:panelGrid>
+            </p:fieldset>
+
+        </h:form>
+        <h:outputScript target="body" library="sistema" name="javascripts/detect.js" />
+        <script>
+            $(document).ready(function () {
+                var ua = detect.parse(navigator.userAgent);
+                navegador = ua.browser.name;
+                if (ua.device.name !== undefined) {
+                    os += ua.device.name + '-';
+                }
+                if (ua.device.manufacturer !== null) {
+                    os += ua.device.manufacturer + '-';
+                }
+                os += ua.os.name;
+                document.getElementById('frm:hh').value = screen.height;
+                document.getElementById('frm:movel').value = ua.device.type;
+                document.getElementById('frm:os').value = os;
+                document.getElementById('frm:navegador').value = navegador;
+                
+
+            });
+
+
+        </script>
+    </ui:define>
+
+</ui:composition>

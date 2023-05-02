@@ -1,0 +1,372 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/WEB-INF/templates/Layout.xhtml"
+                xmlns:ezcomp="http://xmlns.jcp.org/jsf/composite/ezcomp">
+
+    <ui:define name="content">
+        <ezcomp:logado id="uss"/>
+        <h1 class="aw-page-title">Usuários</h1>
+
+
+        <h:form id="frm">
+            <p:messages closable="true" />
+            <p:focus context="@form"/>
+
+            <p:toolbar>
+                <p:toolbarGroup>
+
+                    <p:commandButton value="Voltar (ESC)"  styleClass="cancelar"
+                                     icon="ui-icon-arrowreturn-1-w"
+                                     immediate="true"
+                                     rendered="#{usuarioBean.novo eq false}"
+                                     action="/restrito/index?faces-redirect=true"                                    
+                                     update="@form"
+                                     onstart="PF('statusDialog').show()"
+                                     onsuccess="PF('statusDialog').hide();"
+                                     style="background: brown;width: 160px;"/>
+
+                    <p:commandButton value="Salvar (F8)"  styleClass="salvar"
+                                     actionListener="#{usuarioBean.salvar()}"
+                                     update="@form"
+                                     style="width: 160px;"
+                                     icon="ui-icon-check"
+                                     onstart="PF('statusDialog').show()"
+                                     onsuccess="PF('statusDialog').hide();"
+                                     rendered="#{usuarioBean.novo}">
+                        <p:confirm header="Confirmação" message="Confirma operação?"
+                                   icon="ui-icon-alert" />
+                    </p:commandButton>
+                </p:toolbarGroup>
+                <p:toolbarGroup align="right">
+                    <p:commandButton value="Novo (F6)" styleClass="novo"
+                                     icon="ui-icon-circle-plus"
+
+                                     rendered="#{usuarioBean.novo eq false}"
+                                     actionListener="#{usuarioBean.novo()}"                                    
+                                     update="@form"
+                                     oncomplete="fs();"
+                                     onstart="PF('statusDialog').show()"
+                                     onsuccess="PF('statusDialog').hide();"
+                                     style="width: 160px"/>
+
+                    <p:commandButton value="Editar (F7)" styleClass="editar"
+                                     icon="ui-icon-pencil"
+                                     immediate="true"
+                                     onstart="PF('statusDialog').show()"
+                                     onsuccess="PF('statusDialog').hide();"
+                                     rendered="#{usuarioBean.usuarioc.id ne null}"
+                                     actionListener="#{usuarioBean.editar()}"
+                                     style="background: green;width: 160px"
+                                     oncomplete="fs()"
+                                     update="@form" />
+
+
+                    <p:commandButton value="Ver (F10)" styleClass="ver"
+                                     icon="ui-icon-pencil"
+                                     immediate="true"
+                                     onstart="PF('statusDialog').show()"
+                                     onsuccess="PF('statusDialog').hide();"
+                                     rendered="#{usuarioBean.usuarioc.id ne null}"
+                                     style="background: blueviolet;width: 160px"
+                                     onclick="PF('dlgver').show()"
+                                     update=":ver" 
+                                     />
+
+
+                    <p:commandButton value="Cancelar (ESC)"  styleClass="cancelar" 
+                                     icon="ui-icon-cancel"
+                                     immediate="true"
+                                     onstart="PF('statusDialog').show()"
+                                     onsuccess="PF('statusDialog').hide();"
+                                     rendered="#{usuarioBean.novo}"
+                                     actionListener="#{usuarioBean.cancelar()}"
+                                     style="background: red;width: 160px"
+                                     update="@form" 
+                                     >
+                        <p:confirm header="Confirmação" message="Confirma operação?"
+                                   icon="ui-icon-alert" />
+                    </p:commandButton>
+
+
+                </p:toolbarGroup>
+            </p:toolbar>
+
+
+
+            <div class="ui-fluid">
+
+                <p:panelGrid columns="2" layout="grid"
+                             rendered="#{usuarioBean.novo}"
+                             columnClasses="ui-grid-col-2, ui-grid-col-4, ui-grid-col-2, ui-grid-col-4"
+                             styleClass="panelgrid-noborder">
+
+                    <p:outputLabel value="Codigo" rendered="#{usuarioBean.usuario.id ne null}" />
+                    <p:inputText disabled="true"
+                                 rendered="#{usuarioBean.usuario.id ne null}"
+                                 value="#{usuarioBean.usuario.id}" />
+
+
+                    <p:outputLabel value="Nome" for="nome" />
+                    <p:inputText id="nome" required="true" 
+                                 maxlength="100"
+                                 placeholder="Digite nome do usuario"
+                                 value="#{usuarioBean.usuario.nome}" />
+
+
+                    <p:outputLabel value="CPF" for="cpf" />
+                    <p:inputText
+                        id="cpf" 
+                        maxlength="11"
+                        required="true"
+                        placeholder="Digite cpf do usuario"
+                        value="#{usuarioBean.usuario.cpf}" />
+
+                    <p:outputLabel value="Telefone" for="telefone" />
+                    <p:inputMask value="#{usuarioBean.usuario.telefone}"
+                                 placeholder="digite o telefone"
+                                 id="telefone"
+                                 required="true"
+                                 mask="(99)99999-9999"/>
+
+                    <p:outputLabel value="Whatsapp?" for="wpp" />
+                    <p:selectBooleanCheckbox value="#{usuarioBean.usuario.wpp}"
+                                             id="wpp"
+                                             required="true"/>
+                    
+                     <p:outputLabel value="Valor Banca" for="banca" />
+                    <p:inputNumber
+                        title="Valor Banca"
+                        inputStyle="text-align: right"
+                        decimalPlaces="2"
+                        decimalSeparator=","
+                        thousandSeparator="."
+                        required="true"                                         
+                        id="banca"
+                        size="15"
+                        disabled="#{usuarioBean.usuario.id ne null}"
+                        onfocus="$(this).select();"
+                        maxlength="15"
+                        value="#{usuarioBean.usuario.valorbanca}" >
+                        <p:ajax event="keyup"
+                                process="@this"
+                                oncomplete="fs();"
+                                />
+                    </p:inputNumber>
+
+
+                    <p:outputLabel value="Usuario de acesso" for="usuarioxh" />
+                    <p:inputText id="usuarioxh" required="true" 
+                                 maxlength="32"
+                                 placeholder="Digite o usuario"
+                                 value="#{usuarioBean.usuario.usuario}" />
+
+                    <p:outputLabel value="Senha de acesso" for="senhaxh"
+                                   rendered="#{(usuarioBean.usuario.id eq null or session.getAttribute('usuario').nivel eq 'SUPERVISOR'  or session.getAttribute('usuario').nivel eq 'MASTER')}"/>
+                    <p:password id="senhaxh" required="#{usuarioBean.usuario.id eq null}" 
+                                maxlength="32"
+                                placeholder="Digite  a senha"
+                                rendered="#{(usuarioBean.usuario.id eq null or session.getAttribute('usuario').nivel eq 'SUPERVISOR'  or session.getAttribute('usuario').nivel eq 'MASTER')}"
+                                value="#{usuarioBean.usuario.senha}" />
+
+
+
+                    <p:outputLabel value="Status" for="status" />
+                    <p:selectOneMenu id="status"   
+                                     value="#{usuarioBean.usuario.status}" >
+                        <p:ajax event="change" process="@this"/>
+                        <f:selectItem itemValue="ATIVO" itemLabel="ATIVO"/>
+                        <f:selectItem itemValue="INATIVO" itemLabel="INATIVO"/>
+                        <f:selectItem itemValue="BLOQUEADO" itemLabel="BLOQUEADO"/>
+                    </p:selectOneMenu>
+
+                    <p:outputLabel value="Nivel" for="nivel" rendered="#{usuarioBean.verificanivel()}"/>
+                    <p:selectOneMenu id="nivel" 
+                                     rendered="#{usuarioBean.verificanivel()}"
+                                     value="#{usuarioBean.usuario.nivel}" >
+                        <p:ajax event="change" process="@this" />
+                        <f:selectItems value="#{usuarioBean.niveis}" var="n" itemLabel="#{n}" itemValue="#{n}"/>
+                    </p:selectOneMenu>
+
+
+
+
+                </p:panelGrid>
+
+                <p:panel header="Pesquisa" rendered="#{usuarioBean.novo eq false}">
+                    <p:panelGrid columns="3" 
+                                 id="pesquisa"
+                                 layout="grid"
+                                 columnClasses="ui-grid-col-2, ui-grid-col-4, ui-grid-col-4"
+                                 styleClass="panelgrid-noborder">
+
+                        <p:selectOneMenu id="campo" 
+                                         value="#{usuarioBean.campo}" >
+                            <p:ajax event="change" process="@this"/>
+                            <f:selectItem itemValue="id" itemLabel="Codigo"/>
+                            <f:selectItem itemValue="nome" itemLabel="Nome"/>
+                            <f:selectItem itemValue="cpf" itemLabel="CPF"/>
+                            <f:selectItem itemValue="nivel" itemLabel="Nivel"/>
+                            <f:selectItem itemValue="status" itemLabel="Status"/>
+
+                        </p:selectOneMenu>
+
+                        <p:inputText id="valor" 
+                                     maxlength="100"
+                                     placeholder="Digite o valor a ser pesquisado"
+                                     value="#{usuarioBean.valor}" />
+
+                        <p:commandButton value="Pesquisar" 
+                                         update="@form"
+                                         process=":frm:pesquisa"
+                                         icon="ui-icon-search"
+                                         style="width: 160px"
+                                         onstart="PF('statusDialog').show()"
+                                         onsuccess="PF('statusDialog').hide();"
+                                         actionListener="#{usuarioBean.pesquisar()}"/>
+
+                    </p:panelGrid>
+                </p:panel>
+
+                <p:dataTable value="#{usuarioBean.usuarios}" var="u"                         
+                             resizableColumns="true"
+                             draggableColumns="true"
+                             multiViewState="false"
+                             emptyMessage="nenhum usuario"
+                             reflow="true"
+                             rendered="#{usuarioBean.novo eq false}"
+                             selection="#{usuarioBean.usuarioc}"
+                             selectionMode="single"
+                             rowKey="#{u.id}"
+                             >
+                    <f:facet name="header">Lista de Usuários</f:facet>
+
+                    <p:ajax event="rowSelect" update="@form"
+                            onstart="PF('statusDialog').show()"
+                            onsuccess="PF('statusDialog').hide();"
+                            />
+
+                    <p:column sortBy="#{u.id}" width="50" headerText="Codigo">
+                        <h:outputText value="#{u.id}"/>
+                    </p:column>
+
+                    <p:column sortBy="#{u.nome}" width="100"  headerText="Nome">
+                        <h:outputText value="#{u.nome}"/>
+                    </p:column>
+
+                    <p:column sortBy="#{u.cpf}" width="50"  headerText="CPF">
+                        <h:outputText value="#{u.cpf}"/>
+                    </p:column>
+                    
+                    
+                    <p:column sortBy="#{u.usuario}" width="100" headerText="Usuario">
+                        <h:outputText value="#{u.usuario}"/>
+                    </p:column>
+                    
+                    <p:column sortBy="#{u.telefone}" width="50" headerText="Telefone">
+                        <h:outputText value="#{u.telefone}"/>
+                    </p:column>
+                    
+                    <p:column sortBy="#{u.valorbanca}" width="50" headerText="Valor Banca">
+                        <h:outputText value="#{u.valorbanca}">
+                            <f:convertNumber maxFractionDigits="2" minFractionDigits="2"/>
+                        </h:outputText>
+                    </p:column>
+
+                    <p:column sortBy="#{u.lucro}" width="50" headerText="Lucro">
+                        <h:outputText value="#{u.lucro}">
+                            <f:convertNumber maxFractionDigits="2" minFractionDigits="2"/>
+                        </h:outputText>
+                    </p:column>
+
+                    <p:column sortBy="#{u.status}" width="50" headerText="Status">
+                        <h:outputText value="#{u.status}"/>
+                    </p:column>
+
+                    <p:column sortBy="#{u.nivel}" width="80" headerText="Nivel">
+                        <h:outputText value="#{u.nivel}"/>
+                    </p:column>
+
+                </p:dataTable>
+
+            </div>
+
+
+        </h:form>
+
+        <p:dialog header="Ver Usuario" 
+                  resizable="false"
+                  draggable="true"
+                  closeOnEscape="true"
+                  closable="true"
+                  dynamic="trye"
+                  modal="false"
+                  appendTo="@(body)" 
+                  responsive="true"
+                  widgetVar="dlgver">
+
+            <h:form id="ver" >
+                <div class="ui-fluid">
+                    <p:panelGrid columns="2" layout="grid" styleClass="panelgrid-noborder"
+                                 columnClasses="ui-grid-col-4, ui-grid-col-8">
+                        <p:outputLabel value="Codigo:" />
+                        <h:outputText value="#{usuarioBean.usuarioc.id}"/>
+
+                        <p:outputLabel value="Nome:" />
+                        <h:outputText value="#{usuarioBean.usuarioc.nome}"/>
+
+
+                        <p:outputLabel value="CPF" />
+                        <h:outputText value="#{usuarioBean.usuarioc.cpf}"/>
+
+
+                        <p:outputLabel value="Usuario:" />
+                        <h:outputText value="#{usuarioBean.usuarioc.usuario}"/>
+                        
+                        
+                        <p:outputLabel value="Valor banca" />
+                        <h:outputText value="#{usuarioBean.usuarioc.valorbanca}"/>
+                        
+                        
+                        <p:outputLabel value="Lucro:" />
+                        <h:outputText value="#{usuarioBean.usuarioc.lucro}"/>
+
+
+                        <p:outputLabel value="Status:" />
+                        <h:outputText value="#{usuarioBean.usuarioc.status}"/>
+
+                        <p:outputLabel value="Nivel:" />
+                        <h:outputText value="#{usuarioBean.usuarioc.nivel}"/>
+
+
+                        <p:outputLabel value="Usuario Alteracao:" />
+                        <h:outputText value="#{usuarioBean.usuarioc.usuarioAlteracao}-#{configuracaoBean.pu(usuarioBean.usuarioc.usuarioAlteracao).usuario}"/>
+
+
+                        <p:outputLabel value="Data Alteracao:" />
+                        <h:outputText value="#{usuarioBean.usuarioc.dataAlteracao}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss"/>
+                        </h:outputText>
+                    </p:panelGrid>
+
+
+
+                    <p:commandButton value="Fechar"
+                                     onclick="PF('dlgver').hide();"
+                                     icon="ui-icon-close"
+                                     immediate="true"
+                                     onstart="PF('statusDialog').show()"
+                                     onsuccess="PF('statusDialog').hide();"
+
+                                     >
+                    </p:commandButton>
+                </div>
+            </h:form>
+
+        </p:dialog>
+
+    </ui:define>
+
+</ui:composition>

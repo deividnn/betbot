@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html  lang="en" 
+       xmlns="http://www.w3.org/1999/xhtml"
+       xmlns:cc="http://xmlns.jcp.org/jsf/composite"
+       xmlns:h="http://xmlns.jcp.org/jsf/html"
+       xmlns:p="http://primefaces.org/ui"
+       xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <head><title>Logado</title></head>
+
+
+    <!-- INTERFACE -->
+    <cc:interface>
+    </cc:interface>
+
+    <!-- IMPLEMENTATION -->
+    <cc:implementation>        
+        <h:form id="usuario-sessao">
+            <p:poll async="true" immediate="true" listener="#{configuracaoBean.verificasessao()}" interval="10" update="@this" process="@this"/>
+            <br/>
+            <p:toolbar >
+                <p:toolbarGroup style="font-size: 25px;font-weight: bold;padding-bottom: 20px;text-align: center">
+                    <span style="color: #38b700">Total Disponivel:</span>R$<h:outputText value="#{session.getAttribute('usuario').valorbanca.add(session.getAttribute('usuario').lucro)}" style="font-weight: bold">
+                        <f:convertNumber maxFractionDigits="2" minFractionDigits="2"/>
+                    </h:outputText>
+                    <p:spacer height="0" width="100"/><span style="color: #38b700">Total Banca:</span>R$<h:outputText value="#{session.getAttribute('usuario').valorbanca}" style=";font-weight: bold">
+                        <f:convertNumber maxFractionDigits="2" minFractionDigits="2"/>
+                    </h:outputText>
+                </p:toolbarGroup>
+                <p:toolbarGroup align="right">
+                   
+                        Usuario:<h:outputText style="color: blue;font-weight: bold" value="#{session.getAttribute('usuario').id}-#{session.getAttribute('usuario').usuario}"/>
+                        |Nivel:<h:outputText value="#{session.getAttribute('usuario').nivel}" style="color: red;font-weight: bold"/>
+
+
+                </p:toolbarGroup>
+            </p:toolbar>
+        </h:form>
+        <hr/>
+    </cc:implementation>
+</html>
